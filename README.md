@@ -1002,7 +1002,3 @@ This project is licensed under the **MIT License**.
 [8] Kosko, B. (1994). *Fuzzy Thinking: The New Science of Fuzzy Logic*. Hyperion Books, New York.
 
 ---
-
-**Last Updated:** November 2025  
-**Version:** 1.0.0  
-**Status:** Active Development
