@@ -30,9 +30,7 @@
 - [UI Screenshots](#-ui-screenshots)
 - [Research Background](#-research-background)
 - [Future Enhancements](#-future-enhancements)
-- [Contributing](#-contributing)
 - [License](#-license)
-- [Authors](#-authors)
 
 ---
 
@@ -83,6 +81,7 @@ The **AI Strategy Arena** is a sophisticated multi-agent intelligence system tha
 
 The system employs a **modular layered architecture** with clear separation of concerns:
 
+```
 ┌──────────────────────────────────────────────────────────────┐
 │                        Game Controller                       │
 │  - State Management (Intro, Menu, Battle, Results, Outro)    │
@@ -104,10 +103,7 @@ The system employs a **modular layered architecture** with clear separation of c
 │ - Pattern      │      │ - Glows        │   │                │   │                │
 │   Recognition  │      │                │   │                │   │                │
 └────────────────┘      └────────────────┘   └────────────────┘   └────────────────┘
-
-
-
-
+```
 
 ### Core Components
 
@@ -161,26 +157,25 @@ The system employs a **modular layered architecture** with clear separation of c
 
 **Implementation:**
 
+```python
 def minimax(depth, is_maximizing, alpha, beta, my_history, opp_history,
-my_score, opp_score) -> Tuple[float, Optional[str]]:
-# Base case: leaf node or depth limit
-if depth == 0 or len(my_history) >= 20:
-return evaluate_state(...)
-
-
-if is_maximizing:
-    max_eval = float('-inf')
-    for move in ['C', 'D']:
-        for opp_move in ['C', 'D']:
-            # Recursive call to minimizing player
-            eval_score, _ = minimax(depth-1, False, alpha, beta, ...)
-            max_eval = max(max_eval, eval_score)
-            alpha = max(alpha, eval_score)
-            if beta <= alpha:
-                break  # Beta cutoff
-    return max_eval, best_move
-
-
+            my_score, opp_score) -> Tuple[float, Optional[str]]:
+    # Base case: leaf node or depth limit
+    if depth == 0 or len(my_history) >= 20:
+        return evaluate_state(...)
+    
+    if is_maximizing:
+        max_eval = float('-inf')
+        for move in ['C', 'D']:
+            for opp_move in ['C', 'D']:
+                # Recursive call to minimizing player
+                eval_score, _ = minimax(depth-1, False, alpha, beta, ...)
+                max_eval = max(max_eval, eval_score)
+                alpha = max(alpha, eval_score)
+                if beta <= alpha:
+                    break  # Beta cutoff
+        return max_eval, best_move
+```
 
 **Features:**
 - Search depth: 3 levels
@@ -201,24 +196,23 @@ if is_maximizing:
 
 **Implementation:**
 
-Fuzzy sets (triangular membership functions)
-
+```python
+# Fuzzy sets (triangular membership functions)
 coop_low = (0.0, 0.0, 0.3)
 coop_medium = (0.2, 0.5, 0.8)
 coop_high = (0.7, 1.0, 1.0)
-Fuzzy inference rules
 
+# Fuzzy inference rules
 if coop_high AND consistency_high:
-tendency_cooperate # Strength: min(coop_high, consistency_high)
+    tendency_cooperate  # Strength: min(coop_high, consistency_high)
 if coop_low AND consistency_high:
-tendency_defect
+    tendency_defect
 if consistency_low:
-tendency_balanced
-Defuzzification using centroid method
+    tendency_balanced
 
+# Defuzzification using centroid method
 output = Σ(strength × centroid) / Σ(strength)
-
-
+```
 
 **Input Variables:**
 - Cooperation rate (0-1)
@@ -241,42 +235,36 @@ output = Σ(strength × centroid) / Σ(strength)
 
 **Mathematical Foundation:**
 
+```
 P(H|E) = P(E|H) × P(H) / P(E)
 
 Where:
-
     H: Hypothesis (opponent will cooperate)
-
     E: Evidence (observed moves)
-
     P(H): Prior probability
-
     P(E|H): Likelihood
-
     P(H|E): Posterior probability
-
-
+```
 
 **Implementation:**
 
+```python
 def bayesian_decision():
-recent_coop = opp_history[-3:].count('C') / 3
-evidence_strength = min(1.0, len(opp_history) / 10)
-
-text
-likelihood = recent_coop
-numerator = likelihood × prior
-denominator = numerator + (1 - likelihood) × (1 - prior)
-posterior = numerator / denominator
-
-confidence = |posterior - 0.5| × 2
-
-if confidence > 0.6:
-    return 'C' if posterior > 0.5 else 'D'
-else:
-    return minimax_decision()  # Fallback
-
-text
+    recent_coop = opp_history[-3:].count('C') / 3
+    evidence_strength = min(1.0, len(opp_history) / 10)
+    
+    likelihood = recent_coop
+    numerator = likelihood × prior
+    denominator = numerator + (1 - likelihood) × (1 - prior)
+    posterior = numerator / denominator
+    
+    confidence = |posterior - 0.5| × 2
+    
+    if confidence > 0.6:
+        return 'C' if posterior > 0.5 else 'D'
+    else:
+        return minimax_decision()  # Fallback
+```
 
 **Features:**
 - Dynamic prior updating (multiplicative: ×1.1 for C, ×0.9 for D)
@@ -296,33 +284,32 @@ text
 
 **Pattern Library:**
 
+```python
 pattern_responses = {
-"CCCC": 'D', # Exploit consistent cooperation
-"DDDD": 'C', # Attempt forgiveness
-"CDCD": opp[-1], # Mirror alternating pattern
-"DCDC": opp[-1], # Mirror inverse pattern
-"CCDC": 'D', # Defect after betrayal
-"DDCD": 'C', # Reward single cooperation
+    "CCCC": 'D',      # Exploit consistent cooperation
+    "DDDD": 'C',      # Attempt forgiveness
+    "CDCD": opp[-1],  # Mirror alternating pattern
+    "DCDC": opp[-1],  # Mirror inverse pattern
+    "CCDC": 'D',      # Defect after betrayal
+    "DDCD": 'C',      # Reward single cooperation
 }
-
-
+```
 
 **Markov Chain Prediction:**
 
-State: last 2 moves of opponent
-
+```python
+# State: last 2 moves of opponent
 current_state = ''.join(opp_history[-2:])
-Count transitions: state → next_move
 
+# Count transitions: state → next_move
 transitions = {'C': count_c, 'D': count_d}
-Predict most likely next move
 
+# Predict most likely next move
 predicted_move = max(transitions, key=transitions.get)
-Counter-exploit
 
+# Counter-exploit
 return 'D' if predicted_move == 'C' else 'C'
-
-
+```
 
 **Performance:**
 - 12% of strategy selections
@@ -336,21 +323,20 @@ return 'D' if predicted_move == 'C' else 'C'
 
 **Algorithm:**
 
+```python
 def tit_for_tat_decision():
-if not opp_history:
-return 'C' # Nice: cooperate first
-
-
-if opp_history[-1] == 'D':
-    overall_coop = opp_history.count('C') / len(opp_history)
-    forgiveness_prob = 0.1 + (overall_coop × 0.3)
+    if not opp_history:
+        return 'C'  # Nice: cooperate first
     
-    if random() < forgiveness_prob:
-        return 'C'  # Forgiving
-
-return opp_history[-1]  # Provokable: mirror last move
-
-
+    if opp_history[-1] == 'D':
+        overall_coop = opp_history.count('C') / len(opp_history)
+        forgiveness_prob = 0.1 + (overall_coop × 0.3)
+        
+        if random() < forgiveness_prob:
+            return 'C'  # Forgiving
+    
+    return opp_history[-1]  # Provokable: mirror last move
+```
 
 **Properties:**
 - **Nice:** Never defects first
@@ -370,31 +356,32 @@ return opp_history[-1]  # Provokable: mirror last move
 
 **Success Rate Calculation:**
 
+```python
 success_rate = (total_score / max_possible) × 0.7 + exploit_success × 0.3
 
 Where:
-
     total_score: Sum of earned payoffs
-
     max_possible: Sum of best possible payoffs (5 per round)
-
     exploit_success: Rate of successful D vs C moves
-
-
+```
 
 **Behavioral Adaptation:**
 
+```python
 if success_rate > 0.7:
-# Winning: maintain strategy
-return my_history[-1] if random() < 0.8 else 'D'
+    # Winning: maintain strategy
+    return my_history[-1] if random() < 0.8 else 'D'
+
 elif success_rate < 0.4:
-# Losing: increase aggression
-consecutive_losses += 1
-aggression_level = min(0.8, aggression_level + 0.1)
-return 'D' if consecutive_losses > 2 else random_choice(['C', 'D'])
+    # Losing: increase aggression
+    consecutive_losses += 1
+    aggression_level = min(0.8, aggression_level + 0.1)
+    return 'D' if consecutive_losses > 2 else random_choice(['C', 'D'])
+
 else:
-# Balanced: exploratory behavior
-return 'C' if random() < 0.6 else 'D'
+    # Balanced: exploratory behavior
+    return 'C' if random() < 0.6 else 'D'
+```
 
 **Features:**
 - Dynamic aggression adjustment
@@ -412,38 +399,41 @@ return 'C' if random() < 0.6 else 'D'
 
 **AdvancedStrategyAnalyzer** dynamically selects optimal algorithms based on real-time opponent analysis:
 
+```python
 def analyze_opponent(opp_history, my_score, opp_score):
-coop_rate = opp_history.count('C') / len(opp_history)
-recent_coop = opp_history[-3:].count('C') / 3
-pattern_consistency = calculate_pattern_consistency(opp_history)
-score_differential = my_score - opp_score
-
-text
-# Strategy scoring
-if coop_rate > 0.8 and pattern_consistency > 0.7:
-    # Cooperative and predictable → exploit patterns
-    return "pattern_matcher"
-elif coop_rate < 0.2 and pattern_consistency > 0.6:
-    # Aggressive and predictable → minimax defense
-    return "minimax"
-elif pattern_consistency < 0.4:
-    # Unpredictable → fuzzy logic for ambiguity
-    return "fuzzy"
-elif score_differential < -5:
-    # Losing → minimax or bayesian
-    return "minimax"
-else:
-    # Default → fuzzy or adaptive
-    return "adaptive"
+    coop_rate = opp_history.count('C') / len(opp_history)
+    recent_coop = opp_history[-3:].count('C') / 3
+    pattern_consistency = calculate_pattern_consistency(opp_history)
+    score_differential = my_score - opp_score
+    
+    # Strategy scoring
+    if coop_rate > 0.8 and pattern_consistency > 0.7:
+        # Cooperative and predictable → exploit patterns
+        return "pattern_matcher"
+    elif coop_rate < 0.2 and pattern_consistency > 0.6:
+        # Aggressive and predictable → minimax defense
+        return "minimax"
+    elif pattern_consistency < 0.4:
+        # Unpredictable → fuzzy logic for ambiguity
+        return "fuzzy"
+    elif score_differential < -5:
+        # Losing → minimax or bayesian
+        return "minimax"
+    else:
+        # Default → fuzzy or adaptive
+        return "adaptive"
+```
 
 **Analysis Confidence:**
 
+```python
 confidence = (pattern_consistency + data_quality) / 2
 data_quality = min(1.0, len(opp_history) / 20)
-Fallback for low confidence
 
+# Fallback for low confidence
 if random() > analysis_accuracy × confidence:
-return weighted_random_strategy() # Based on historical performance
+    return weighted_random_strategy()  # Based on historical performance
+```
 
 ---
 
@@ -456,23 +446,30 @@ return weighted_random_strategy() # Based on historical performance
 
 ### Step 1: Clone the Repository
 
+```bash
 git clone https://github.com/C-loud-Nine/AI_Strategy_Arena-Adaptive-Multi-Agent-Intelligence-Game-for-Iterated-Prisoner-s-Dilemma.git
 cd AI_Strategy_Arena-Adaptive-Multi-Agent-Intelligence-Game-for-Iterated-Prisoner-s-Dilemma
+```
 
 ### Step 2: Install Dependencies
 
+```bash
 pip install -r requirements.txt
+```
 
 **requirements.txt:**
 
+```
 pygame>=2.5.0
 numpy>=1.21.0
-
+```
 
 ### Step 3: Verify Installation
 
-python --version # Should show Python 3.8+
+```bash
+python --version  # Should show Python 3.8+
 python -c "import pygame; import numpy; print('Dependencies OK')"
+```
 
 ---
 
@@ -480,9 +477,9 @@ python -c "import pygame; import numpy; print('Dependencies OK')"
 
 ### Running the Game
 
+```bash
 python advanced_prisoners_dilemma.py
-
-
+```
 
 ### Controls
 
@@ -495,6 +492,7 @@ python advanced_prisoners_dilemma.py
 
 ### Game Flow
 
+```
 ┌──────────────┐
 │    INTRO     │
 │ Animated title screen with procedural music │
@@ -525,11 +523,11 @@ python advanced_prisoners_dilemma.py
         │
         ▼
  Return to MENU or OUTRO
-
-
+```
 
 ### Strategy Info Panel (During Battle)
 
+```
 ┌────────────────────────────────────────────┐
 │          Current Strategy Panel            │
 ├────────────────────────────────────────────┤
@@ -539,49 +537,47 @@ python advanced_prisoners_dilemma.py
 │   - Adaptive AI : [Percentage]             │
 │   - Opponent    : [Percentage]             │
 └────────────────────────────────────────────┘
-
-
-
+```
 
 ---
 
 ## 📁 Project Structure
 
+```
 AI_Strategy_Arena/
 │
-├── advanced_prisoners_dilemma.py # Main game controller
-│ ├── CinematicEffect # Screen shake, flash, zoom
-│ ├── EnhancedVFXManager # Particle system coordinator
-│ ├── EmotionalCharacter # Character rendering & animation
-│ ├── AnimatedBackground # Stars, nebula, grid effects
-│ ├── GameController # Core game loop
-│ └── Various VFX classes # Particles, beams, explosions, etc.
+├── advanced_prisoners_dilemma.py  # Main game controller
+│   ├── CinematicEffect            # Screen shake, flash, zoom
+│   ├── EnhancedVFXManager         # Particle system coordinator
+│   ├── EmotionalCharacter         # Character rendering & animation
+│   ├── AnimatedBackground         # Stars, nebula, grid effects
+│   ├── GameController             # Core game loop
+│   └── Various VFX classes        # Particles, beams, explosions, etc.
 │
-├── ai.py # AI algorithms & opponent system
-│ ├── AdversarialSearchAI # Minimax with alpha-beta pruning
-│ ├── FuzzyLogicSystem # Fuzzy inference engine
-│ ├── AdvancedStrategyAnalyzer # Opponent analysis & strategy selection
-│ ├── PowerfulAdaptiveAI # Main adaptive agent
-│ └── StrategicOpponentAI # 9 opponent archetypes
+├── ai.py                          # AI algorithms & opponent system
+│   ├── AdversarialSearchAI        # Minimax with alpha-beta pruning
+│   ├── FuzzyLogicSystem           # Fuzzy inference engine
+│   ├── AdvancedStrategyAnalyzer   # Opponent analysis & strategy selection
+│   ├── PowerfulAdaptiveAI         # Main adaptive agent
+│   └── StrategicOpponentAI        # 9 opponent archetypes
 │
-├── sound.py # Procedural audio system
-│ ├── ProceduralMusicSystem # Dynamic music generation
-│ ├── AdvancedSoundManager # Sound effect synthesis
-│ └── Waveform generators # Sine, square, triangle waves
+├── sound.py                       # Procedural audio system
+│   ├── ProceduralMusicSystem      # Dynamic music generation
+│   ├── AdvancedSoundManager       # Sound effect synthesis
+│   └── Waveform generators        # Sine, square, triangle waves
 │
-├── UI/ # Interface screenshots
-│ ├── start.png # Main menu interface
-│ ├── ui1.png # Gameplay screen
-│ ├── ui2.png # Strategy info panel
-│ └── result.png # Results screen
+├── UI/                            # Interface screenshots
+│   ├── start.png                  # Main menu interface
+│   ├── ui1.png                    # Gameplay screen
+│   ├── ui2.png                    # Strategy info panel
+│   └── result.png                 # Results screen
 │
 ├── Adaptive-Multi-Agent-Intelligence-System.pdf
 │ 
 │
-├── requirements.txt # Python dependencies
-└── README.md # This file
-
-
+├── requirements.txt               # Python dependencies
+└── README.md                      # This file
+```
 
 ---
 
@@ -609,16 +605,15 @@ AI_Strategy_Arena/
 
 **Implementation:**
 
+```python
 class StrategyIndicator:
-def draw(self, screen):
-# Expanding ring animation
-pygame.draw.circle(screen, color, (x, y), size, 3)
-
-
-    # Strategy name with glow
-    font.render(strategy_name, True, color)
-
-
+    def draw(self, screen):
+        # Expanding ring animation
+        pygame.draw.circle(screen, color, (x, y), size, 3)
+        
+        # Strategy name with glow
+        font.render(strategy_name, True, color)
+```
 
 **Displayed Information:**
 - Current active algorithm
@@ -637,23 +632,22 @@ pygame.draw.circle(screen, color, (x, y), size, 3)
 
 **Realistic motion simulation:**
 
+```python
 class EnhancedParticle:
-def update(self):
-# Kinematic equations
-self.x += self.speed_x
-self.y += self.speed_y
-
-
-    # Forces
-    self.speed_y += self.gravity      # F = ma
-    self.speed_x *= 0.98              # Air resistance
-    
-    # Aging
-    self.life -= self.decay
-    self.size = max(0, self.size - 0.1)
-    self.angle += self.spin
-
-
+    def update(self):
+        # Kinematic equations
+        self.x += self.speed_x
+        self.y += self.speed_y
+        
+        # Forces
+        self.speed_y += self.gravity      # F = ma
+        self.speed_x *= 0.98              # Air resistance
+        
+        # Aging
+        self.life -= self.decay
+        self.size = max(0, self.size - 0.1)
+        self.angle += self.spin
+```
 
 **Particle Shapes:**
 - Circles: Smooth, soft effects
@@ -674,22 +668,22 @@ self.y += self.speed_y
 
 **Performance Tracking:**
 
+```python
 strategy_performance = {
-"minimax": {"wins": 12, "uses": 50},
-"fuzzy": {"wins": 20, "uses": 90},
-# ...
+    "minimax": {"wins": 12, "uses": 50},
+    "fuzzy": {"wins": 20, "uses": 90},
+    # ...
 }
 
 success_rate = strategy["wins"] / strategy["uses"]
-
-
+```
 
 **Weighted Random Selection** (when uncertain):
 
+```python
 weights = [0.1 + success_rate for strategy in all_strategies]
 selected = random.choices(strategies, weights=weights)
-
-
+```
 
 **Benefits:**
 - Learns optimal meta-strategy
@@ -702,18 +696,17 @@ selected = random.choices(strategies, weights=weights)
 
 **Professional audio quality through envelope control:**
 
-Attack-Decay-Sustain-Release
-
-if progress < 0.1: # Attack (10% of note)
-envelope = progress / 0.1
-elif progress > 0.8: # Release (20% of note)
-envelope = (1.0 - progress) / 0.2
-else: # Sustain (70% of note)
-envelope = 1.0
+```python
+# Attack-Decay-Sustain-Release
+if progress < 0.1:  # Attack (10% of note)
+    envelope = progress / 0.1
+elif progress > 0.8:  # Release (20% of note)
+    envelope = (1.0 - progress) / 0.2
+else:  # Sustain (70% of note)
+    envelope = 1.0
 
 sample = waveform * amplitude * envelope
-
-
+```
 
 **Prevents audio artifacts:**
 - Attack: Smooth fade-in eliminates clicks
@@ -733,33 +726,33 @@ sample = waveform * amplitude * envelope
 
 **Screen Shake:**
 
+```python
 if shake_duration > 0:
-offset = (
-random.randint(-intensity, intensity),
-random.randint(-intensity, intensity)
-)
-# Apply offset to all rendering
-
-
+    offset = (
+        random.randint(-intensity, intensity),
+        random.randint(-intensity, intensity)
+    )
+    # Apply offset to all rendering
+```
 
 **Flash Effect:**
 
+```python
 flash_surface = pygame.Surface((WIDTH, HEIGHT))
 flash_surface.fill((255, 255, 255))
-flash_surface.set_alpha(flash_alpha) # Fades over time
+flash_surface.set_alpha(flash_alpha)  # Fades over time
 screen.blit(flash_surface, (0, 0))
-
-
+```
 
 **Vignette:**
 
+```python
 for i in range(100):
-alpha = int(vignette_alpha * (i / 100))
-size = int((100 - i) / 100 * min(WIDTH, HEIGHT) / 2)
-pygame.draw.rect(vignette_surface, (0, 0, 0, alpha),
-(size, size, WIDTH - 2size, HEIGHT - 2size))
-
-text
+    alpha = int(vignette_alpha * (i / 100))
+    size = int((100 - i) / 100 * min(WIDTH, HEIGHT) / 2)
+    pygame.draw.rect(vignette_surface, (0, 0, 0, alpha),
+                     (size, size, WIDTH - 2*size, HEIGHT - 2*size))
+```
 
 **Performance Impact:** <5% overhead with alpha blending
 
@@ -779,22 +772,20 @@ text
 | **Angry** 😠      | Sharp diagonals      | Downward arc  | Red face tint      |
 | **Neutral** 😐    | Normal circles       | Straight line | —                  |
 
-
 **Animation System:**
 
+```python
 def update_emotion(self, game_event):
-if game_event == "win":
-self.set_emotion(EMOTION_HAPPY, intensity=1.0)
-self.celebration_animation = 120
-elif game_event == "loss":
-self.set_emotion(EMOTION_SAD, intensity=1.0)
-self.defeat_animation = 100
-
-
-# Gradual decay
-self.emotion_intensity = max(0, self.emotion_intensity - 0.01)
-
-
+    if game_event == "win":
+        self.set_emotion(EMOTION_HAPPY, intensity=1.0)
+        self.celebration_animation = 120
+    elif game_event == "loss":
+        self.set_emotion(EMOTION_SAD, intensity=1.0)
+        self.defeat_animation = 100
+    
+    # Gradual decay
+    self.emotion_intensity = max(0, self.emotion_intensity - 0.01)
+```
 
 ---
 
@@ -815,9 +806,9 @@ self.emotion_intensity = max(0, self.emotion_intensity - 0.01)
 | **Strategic**     | 65%       | 54%              | 34%                | Minimax (35%)         |
 | **Mean**          | **79.6%** | **54.4%**        | **35.9%**          | —                     |
 
-
 ### Strategy Selection Distribution (22,500 Total Decisions)
 
+```
 Strategy Usage Distribution
 ──────────────────────────────────────────────
 Adaptive Learning     : 25%  ████████████▌
@@ -827,7 +818,7 @@ Tit-for-Tat           : 15%  ███████▌
 Pattern Recognition   : 12%  ██████
 Bayesian Inference    :  8%  ████
 ──────────────────────────────────────────────
-
+```
 
 ### Computational Performance
 
@@ -850,7 +841,6 @@ Bayesian Inference    :  8%  ████
 | **Pattern**     | 0.6 ms            | O(n)           | 1 KB   |
 | **Tit-for-Tat** | 0.1 ms            | O(1)           | 0.1 KB |
 | **Adaptive**    | 0.4 ms            | O(n)           | 0.8 KB |
-
 
 **Key Insights:**
 - Minimax dominates computation but provides strong strategic play
@@ -990,29 +980,6 @@ Bayesian Inference    :  8%  ████
 ## 📄 License
 
 This project is licensed under the **MIT License**.
-
-MIT License
-
-Copyright (c) 2025 Md Kawsar Mahmud Khan Zunayed & Abdullah Al Shafi
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
 
 ---
 
